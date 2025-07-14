@@ -33,5 +33,8 @@
   "bugs": {
     "url": "https://github.com/ismailsilat7/todo-list/issues"
   },
-  "homepage": "https://github.com/ismailsilat7/todo-list#readme"
+  "homepage": "https://github.com/ismailsilat7/todo-list#readme",
+  "dependencies": {
+    "date-fns": "^4.1.0"
+  }
 }
