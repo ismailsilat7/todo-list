@@ -27,8 +27,25 @@ export default class ToDoManager {
 
         const data = JSON.parse(localStorage.getItem("todoData"));
         if (!data) {
+            // Add initial projects
+            const defaultProject = new Project("Personal");
+            const workProject = new Project("Work");
+
+            this.projects.push(defaultProject, workProject);
+
+            // Add initial tasks
+            const today = new Date().toISOString().split("T")[0]; // yyyy-mm-dd
+            const tomorrow = new Date(Date.now() + 86400000).toISOString().split("T")[0];
+
+            this.tasks.push(
+                new Task("Buy groceries", "Milk, eggs, bread", today, "medium", defaultProject.id),
+                new Task("Prepare slides", "Project update slides", tomorrow, "high", workProject.id)
+            );
+
+            this.saveToStorage();
             return;
         }
+
 
         this.tasks = data.tasks.map(Task.fromJSON);
         
@@ -67,9 +84,9 @@ export default class ToDoManager {
         this.saveToStorage();
     }
 
-    addProject(title) {
+    addProject(title, color) {
         if (!this.projects.some(p => p.title === title)) {
-            this.projects.push(new Project(title));
+            this.projects.push(new Project(title, color));
             this.saveToStorage();
         }
     }
@@ -90,29 +107,41 @@ export default class ToDoManager {
         );
     }
 
-    filterTasks(type) {
+    filterTasks(type, projectID = null) {
         const now = new Date();
 
+        let filteredTasks = this.tasks;
+
+        if (projectID !== null) {
+            filteredTasks = filteredTasks.filter(t => t.projectID === projectID);
+        }
+
         switch (type) {
+            case "inbox":
+                return filteredTasks;
             case "today":
-                return this.tasks.filter(t => isToday(parseISO(t.dueDate)));
-            case "tomorrow":
-                return this.tasks.filter(t => isTomorrow(parseISO(t.dueDate)));
+                return filteredTasks.filter(t => isToday(parseISO(t.dueDate)));
             case "thisWeek":
-                return this.tasks.filter(t => isThisWeek(parseISO(t.dueDate), { weekStartsOn: 1 }));
+                return filteredTasks.filter(t =>
+                    isThisWeek(parseISO(t.dueDate), { weekStartsOn: 1 })
+                );
             case "upcoming":
-                return this.tasks.filter(t => isAfter(parseISO(t.dueDate), now) && !isThisWeek(parseISO(t.dueDate)));
+                return filteredTasks.filter(t =>
+                    isAfter(parseISO(t.dueDate), now) &&
+                    !isThisWeek(parseISO(t.dueDate), { weekStartsOn: 1 })
+                );
             case "overdue":
-                return this.tasks.filter(t => isBefore(parseISO(t.dueDate), now) && !t.completed);
+                return filteredTasks.filter(t =>
+                    isBefore(parseISO(t.dueDate), now) && !t.completed
+                );
             case "completed":
-                return this.tasks.filter(t => t.completed);
+                return filteredTasks.filter(t => t.completed);
             case "incomplete":
-                return this.tasks.filter(t => !t.completed);
+                return filteredTasks.filter(t => !t.completed);
             default:
-                return this.tasks;
+                return filteredTasks;
         }
     }
-
 
     saveToStorage() {
         const data = {
@@ -122,8 +151,8 @@ export default class ToDoManager {
         localStorage.setItem("todoData", JSON.stringify(data));
     }
 
-    filterByPriority(level) {
-        return this.tasks.filter(task => task.priority === level);
+    filterByPriority(level, projectID = null) {
+        return this.tasks.filter(task => task.priority === level && (projectID != null && task.projectID === projectID));
     }
 
     getTasksSortedByPriority(tasks = this.tasks) {
