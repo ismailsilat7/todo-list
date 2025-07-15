@@ -25,7 +25,12 @@ module.exports = {
       {
         test: /\.(woff2?|eot|ttf|otf)$/i,
         type: "asset/resource"
-      }
+      },
+      {
+        test: /\.svg$/i,
+        resourceQuery: /raw/,
+        type: 'asset/source'
+      },
     ]
   },
   plugins: [
