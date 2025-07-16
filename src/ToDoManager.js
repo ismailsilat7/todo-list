@@ -16,7 +16,8 @@ import {
   isBefore,
   differenceInDays,
   isSameDay,
-  isAfter
+  isAfter,
+  startOfDay
 } from 'date-fns';
 
 export default class ToDoManager {
@@ -27,24 +28,36 @@ export default class ToDoManager {
 
         const data = JSON.parse(localStorage.getItem("todoData"));
         if (!data) {
-            // Add initial projects
-            const defaultProject = new Project("Personal");
-            const workProject = new Project("Work");
+            const todoTour = new Project("nextup tour", "#18cb96");
+            const personal = new Project("Personal", "#8BC34A");
+            const work = new Project("Work", "#00BCD4");
 
-            this.projects.push(defaultProject, workProject);
+            this.projects.push(todoTour, personal, work);
 
-            // Add initial tasks
-            const today = new Date().toISOString().split("T")[0]; // yyyy-mm-dd
-            const tomorrow = new Date(Date.now() + 86400000).toISOString().split("T")[0];
+            const today = new Date();
+            const formatDate = (offsetDays) =>
+                new Date(today.getTime() + offsetDays * 86400000).toISOString().split("T")[0];
 
             this.tasks.push(
-                new Task("Buy groceries", "Milk, eggs, bread", today, "medium", defaultProject.id),
-                new Task("Prepare slides", "Project update slides", tomorrow, "high", workProject.id)
+                new Task("Add your first task", "Try clicking the 'Add Task' button and fill out the form.", formatDate(0), "low", todoTour.id),
+                new Task("Create a new project", "Add a project to organize your tasks.", formatDate(0), "low", todoTour.id),
+                new Task("Edit a task", "Click the pencil icon on a task card to edit it.", formatDate(0), "low", todoTour.id),
+                new Task("Mark a task as complete", "Click the checkbox icon to mark a task as done!", formatDate(0), "low", todoTour.id),
+
+                new Task("Buy groceries", "Milk, eggs, bread, fruits", formatDate(0), "low", personal.id),
+                new Task("Call parents", "Catch up over a video call", formatDate(1), "high", personal.id),
+                new Task("Pay rent", "Transfer rent to landlord", formatDate(-2), "high", personal.id),
+
+                new Task("Team standup", "Daily sync at 10 AM", formatDate(0), "medium", work.id),
+                new Task("Submit report", "Quarterly performance report", formatDate(1), "high", work.id),
+                new Task("Client feedback", "Review and summarize feedback notes", formatDate(2), "medium", work.id),
+                new Task("Prepare presentation", "Q3 roadmap presentation", formatDate(5), "low", work.id)
             );
 
             this.saveToStorage();
             return;
         }
+
 
 
         this.tasks = data.tasks.map(Task.fromJSON);
@@ -132,7 +145,7 @@ export default class ToDoManager {
                 );
             case "overdue":
                 return filteredTasks.filter(t =>
-                    isBefore(parseISO(t.dueDate), now) && !t.completed
+                    isBefore(parseISO(t.dueDate), startOfDay(now)) && !t.completed
                 );
             case "completed":
                 return filteredTasks.filter(t => t.completed);
