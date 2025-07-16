@@ -67,7 +67,13 @@ function taskCard(task, manager, isProject, onUpdate) {
         projectName.classList.add("projectName");
         const project = manager.projects.find(p => p.id === task.projectID);
         projectName.textContent = project ? project.title : "";
-        projectName.style.color = project ? project.color : "#000000";
+        projectName.style.color = project ? project.color : "#FFFFFF";
+        const projectTasks = manager.filterTasks("project", project.id);
+        projectName.addEventListener('click', () => {
+            document.querySelectorAll(".viewButton").forEach(b => b.classList.remove("active-sidebar"));
+            taskContent(document.querySelector("#content"), project.title, projectTasks, manager, true, project.id);
+            document.querySelector(`#${project.id} .viewButton`).classList.add("active-sidebar")
+        })
         card.append(projectName);
     }
     return card;
@@ -122,7 +128,7 @@ export default function taskContent(content, id, tasks = null, manager, project 
     contentHead.classList.add("contentHead");
 
     const pageTitle = document.createElement("h1");
-    pageTitle.textContent = id;
+    pageTitle.textContent = (id == "thisWeek") ? "This Week" : id;
     contentHead.append(pageTitle);
 
     const filterBtn = document.createElement("select");
