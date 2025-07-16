@@ -1,8 +1,8 @@
 import ToDoManager from "./ToDoManager";
 import "./style.css"
-import { updateProject } from "./form/from";
+import { updateProject } from "./form/form";
 import taskContent from "./filter/filter";
-import formContent from "./form/from";
+import formContent from "./form/form";
 import logoIcon from "./images/logo-nobg-white.png";
 import sidebarIcon from "./images/sidebar-icon.png";
 import addIcon from "./images/add.svg";

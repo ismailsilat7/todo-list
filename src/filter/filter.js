@@ -4,7 +4,7 @@ import completeIcon from "../images/complete-checkbox.svg";
 import incompleteIcon from "../images/incomplete-checkbox.svg";
 import editIcon from "../images/edit.svg";
 import deleteIcon from "../images/delete.svg";
-import formContent from "../form/from";
+import formContent from "../form/form";
 
 function taskCard(task, manager, isProject, onUpdate) {
     const card = document.createElement("div");
