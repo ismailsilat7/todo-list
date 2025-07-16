@@ -4,26 +4,27 @@ import completeIcon from "../images/complete-checkbox.svg";
 import incompleteIcon from "../images/incomplete-checkbox.svg";
 import editIcon from "../images/edit.svg";
 import deleteIcon from "../images/delete.svg";
+import formContent from "../form/from";
 
 function taskCard(task, manager, isProject, onUpdate) {
-    const card = document.createElement('div');
+    const card = document.createElement("div");
     card.classList.add("taskCard");
     card.id = task.id;
 
-    const title = document.createElement('h3');
+    const title = document.createElement("h3");
     title.textContent = task.title;
     title.classList.add("taskTitle");
 
-    const desc = document.createElement('p');
+    const desc = document.createElement("p");
     desc.textContent = task.description;
     desc.classList.add("taskDesc");
 
-    const dueDate = document.createElement('p');
+    const dueDate = document.createElement("p");
     dueDate.textContent = task.dueDate;
     dueDate.classList.add("taskDueDate");
 
-    const status = document.createElement('span');
-    const complete = document.createElement('img');
+    const status = document.createElement("span");
+    const complete = document.createElement("img");
     complete.src = task.completed ? completeIcon : incompleteIcon;
     status.classList.add(task.completed ? "completed" : "incomplete", "statusBtn");
     status.append(complete);
@@ -32,10 +33,10 @@ function taskCard(task, manager, isProject, onUpdate) {
         onUpdate();
     };
 
-    const priority = document.createElement('span');
-    priority.textContent = `${task.priority}`;
+    const priority = document.createElement("span");
+    priority.textContent = task.priority;
     priority.classList.add(`priority-${task.priority}`, "priority");
-    if(isProject) {
+    if (isProject) {
         priority.classList.add("priority-project");
     }
 
@@ -45,12 +46,8 @@ function taskCard(task, manager, isProject, onUpdate) {
     editImg.src = editIcon;
     editBtn.append(editImg);
     editBtn.onclick = () => {
-        const newTitle = prompt("Edit task title:", task.title);
-        if (newTitle) {
-            task.title = newTitle;
-            manager.updateTask(task.id, task.title, task.description, task.dueDate, task.priority, task.projectID);
-            onUpdate();
-        }
+        formContent("editTask", task.id);
+        document.querySelectorAll(".viewButton").forEach(b => b.classList.remove("active-sidebar"));
     };
 
     const deleteBtn = document.createElement("span");
@@ -64,11 +61,11 @@ function taskCard(task, manager, isProject, onUpdate) {
     };
 
     card.append(title, desc, dueDate, status, priority, editBtn, deleteBtn);
-    console.log(isProject);
-    if(!isProject) {
-        const projectName = document.createElement('p');
+
+    if (!isProject) {
+        const projectName = document.createElement("p");
         projectName.classList.add("projectName");
-        const project = manager.projects.find((p) => p.id === task.projectID);
+        const project = manager.projects.find(p => p.id === task.projectID);
         projectName.textContent = project ? project.title : "";
         projectName.style.color = project ? project.color : "#000000";
         card.append(projectName);
@@ -76,11 +73,10 @@ function taskCard(task, manager, isProject, onUpdate) {
     return card;
 }
 
-
 const options = {
     "filter": {
         label: "Default",
-        filter: (tasks) => tasks.filter(t => t),
+        filter: tasks => tasks,
     },
     "priority-desc": {
         label: "High to Low priority",
@@ -92,30 +88,42 @@ const options = {
     },
     "completed": {
         label: "Completed Only",
-        filter: (tasks) => tasks.filter(t => t.completed),
+        filter: tasks => tasks.filter(t => t.completed),
     },
     "incomplete": {
         label: "Incomplete Only",
-        filter: (tasks) => tasks.filter(t => !t.completed),
+        filter: tasks => tasks.filter(t => !t.completed),
     },
+    "date": {
+        label: "Furthest Due First",
+        filter: tasks => tasks.slice().sort((a, b) => new Date(b.dueDate) - new Date(a.dueDate))
+    },
+    "oldDate": {
+        label: "Closest Due First",
+        filter: tasks => tasks.slice().sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate))
+    }
 };
 
-
-export default function taskContent(content, id, initialTasks, manager, project = false, projectID = null) {
+export default function taskContent(content, id, tasks = null, manager, project = false, projectID = null) {
     content.innerHTML = "";
 
-    const getFilteredTasks = () => {
-        if (project) return manager.filterTasks("project", projectID);
-        return manager.filterTasks(id);
+    // Refetch latest tasks if not passed in
+    const fetchTasks = () => {
+        return project ? manager.filterTasks("project", projectID) : manager.filterTasks(id);
     };
 
-    let tasks = getFilteredTasks();
+    let currentTasks = tasks ?? fetchTasks();
 
-    const contentHead = document.createElement('div');
-    contentHead.classList.add('contentHead');
+    const rerender = () => {
+        taskContent(content, id, null, manager, project, projectID);
+    };
 
-    const pageTitle = document.createElement('h1');
+    const contentHead = document.createElement("div");
+    contentHead.classList.add("contentHead");
+
+    const pageTitle = document.createElement("h1");
     pageTitle.textContent = id;
+    contentHead.append(pageTitle);
 
     const filterBtn = document.createElement("select");
     filterBtn.id = "filterBtn";
@@ -134,41 +142,40 @@ export default function taskContent(content, id, initialTasks, manager, project 
         filterBtn.appendChild(opt);
     }
 
-    contentHead.append(pageTitle, filterBtn);
+    contentHead.append(filterBtn);
 
-    const progress = document.createElement('div');
+    const progress = document.createElement("div");
     progress.classList.add("progress");
-    const completedTasks = document.createElement('p');
-    const count = tasks.filter(t => t.completed).length;
-    completedTasks.textContent = tasks.length ? `Completed ${count}/${tasks.length} tasks` : "Nothing to view here!";
-    if (!tasks.length) {
+
+    const completedCount = currentTasks.filter(t => t.completed).length;
+    const progressText = document.createElement("p");
+    progressText.textContent = currentTasks.length ? `Completed ${completedCount}/${currentTasks.length} tasks` : "Nothing to view here!";
+
+    if (!currentTasks.length) {
         progress.classList.add("empty-progress");
     }
-    progress.append(completedTasks);
 
-    const tasksSection = document.createElement('div');
+    progress.append(progressText);
+
+    const tasksSection = document.createElement("div");
     tasksSection.classList.add("taskSection");
 
-    const rerenderPage = () => {
-        taskContent(content, id, null, manager, project, projectID);
-    };
-
-    tasks.forEach(task => {
-        tasksSection.appendChild(taskCard(task, manager, project, rerenderPage));
+    currentTasks.forEach(task => {
+        tasksSection.appendChild(taskCard(task, manager, project, rerender));
     });
 
     filterBtn.addEventListener("change", () => {
-        let filteredTasks = getFilteredTasks();
         const selected = filterBtn.value;
+        let filteredTasks = fetchTasks();
 
         if (options[selected]) {
             filteredTasks = options[selected].filter(filteredTasks, manager);
         }
 
         tasksSection.innerHTML = "";
-        filteredTasks.forEach(t =>
-            tasksSection.appendChild(taskCard(t, manager, project, rerenderPage))
-        );
+        filteredTasks.forEach(task => {
+            tasksSection.appendChild(taskCard(task, manager, project, rerender));
+        });
     });
 
     content.append(contentHead, progress, tasksSection);
