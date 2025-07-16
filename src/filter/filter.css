@@ -16,7 +16,7 @@
   align-items: center;
   margin-bottom: 20px;
   font-family: 'HeroLight', sans-serif;
-  width: 80%;
+  width: 90%;
 }
 
 .contentHead h1 {
@@ -95,7 +95,6 @@
 }
 
 .taskCard:hover {
-  transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(0,0,0,0.06);
 }
 
@@ -129,6 +128,11 @@
     border-radius: 15px;
     overflow-x: hidden;
     width: max-content;
+    cursor: pointer;
+}
+
+.projectName:hover {
+    background-color: #373643;
 }
 
 .taskSection {
@@ -136,6 +140,7 @@
     justify-content: space-around;
     flex-wrap: wrap;
     column-gap: 10px;
+    width: 100%;
 }
 
 .taskDueDate {
