@@ -32,7 +32,7 @@ body {
   margin: 0;
   font-family: 'Poppins', sans-serif;
   display: flex;
-  height: 100vh;
+  min-height: 100vh;
   background-color: #f5f5f5;
 }
 
@@ -46,6 +46,7 @@ body {
   flex-direction: column;
   overflow-y: auto;
   transition: all 0.2s ease-in-out;
+  justify-self: stretch;
 }
 
 #sidebar-icon {
@@ -83,7 +84,7 @@ body {
   margin-bottom: 24px;
 }
 
-#taskButtons .button {
+#taskButtons .button, #addTask{
   display: flex;
   align-items: center;
   gap: 12px;
@@ -93,11 +94,17 @@ body {
   cursor: pointer;
 }
 
-#taskButtons .button:hover {
+#taskButtons .button:hover, .viewButton:hover{
   background-color: rgba(255, 255, 255, 0.08);
+  margin-left: 10px;
 }
 
-#taskButtons .button img {
+.active-sidebar {
+  background-color: rgba(255, 255, 255, 0.08);
+  margin-left: 10px;
+}
+
+#taskButtons .button img, #addTask img {
   width: 20px;
   height: 20px;
   filter: brightness(0) invert(1);
@@ -170,6 +177,8 @@ body {
   align-items: center;
   gap: 8px;
   cursor: pointer;
+  padding: 2px;
+  border-radius: 2px;
 }
 
 .project-entry button {
