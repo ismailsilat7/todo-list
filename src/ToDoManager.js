@@ -28,7 +28,7 @@ export default class ToDoManager {
 
         const data = JSON.parse(localStorage.getItem("todoData"));
         if (!data) {
-            const todoTour = new Project("nextup tour", "#18cb96");
+            const todoTour = new Project("Upnext tour", "#18cb96");
             const personal = new Project("Personal", "#8BC34A");
             const work = new Project("Work", "#00BCD4");
 
