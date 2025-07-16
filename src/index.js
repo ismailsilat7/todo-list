@@ -61,6 +61,7 @@ function updateProject() {
         div.classList.add("project-entry");
     
         const name = document.createElement("span");
+        name.classList.add("viewButton");
 
         const colorSpan = document.createElement("span");
         const svg = injectColoredIcon(project.color);
@@ -82,6 +83,11 @@ function updateProject() {
     
         div.append(name, removeBtn);
         projects.appendChild(div);
+
+        name.addEventListener('click', () => {
+            const projectTasks = manager.filterTasks("project", project.id);
+            taskContent(document.querySelector("#content"), project.title, projectTasks, manager, true);
+        });
     }
 }
 
@@ -123,9 +129,30 @@ document.addEventListener("DOMContentLoaded", () => {
             taskContent(document.querySelector("#content"), button.id, views[button.id], manager);
         });
     });
+
+    document.querySelectorAll(".viewButton").forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            document.querySelectorAll(".viewButton").forEach(b => b.classList.remove("active-sidebar"));
+            btn.classList.add("active-sidebar");
+        })
+    })
+
+    document.querySelector("#addTask").addEventListener("click", (e, b) => {
+        document.querySelectorAll(".viewButton").forEach(b => b.classList.remove("active-sidebar"));
+        document.querySelector("#content").textContent = ""
+        b.classList.add("active-sidebar");
+    });
+
+    document.querySelector("#addProject").addEventListener("click", (e, b) => {
+        document.querySelectorAll(".viewButton").forEach(b => b.classList.remove("active-sidebar"));
+        document.querySelector("#content").textContent = ""
+        b.classList.add("active-sidebar");
+    });
+
 });
 
 taskContent(document.querySelector("#content"), "inbox", views["inbox"], manager);
+document.querySelector("#inbox").classList.add("active-sidebar");
 
 const sidebar = document.querySelector(".sidebar-content");
 document.querySelector("#sidebar-icon").addEventListener('click', () => {
