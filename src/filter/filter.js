@@ -110,18 +110,21 @@ const options = {
     }
 };
 
+let prevState = "filter"
+
 export default function taskContent(content, id, tasks = null, manager, project = false, projectID = null) {
     content.innerHTML = "";
 
     // Refetch latest tasks if not passed in
     const fetchTasks = () => {
-        return project ? manager.filterTasks("project", projectID) : manager.filterTasks(id);
+        let filterTasks =  project ? manager.filterTasks("project", projectID) : manager.filterTasks(id);
+        return (options[prevState]) ? options[prevState].filter(filterTasks, manager) : filterTasks;
     };
 
     let currentTasks = tasks ?? fetchTasks();
 
     const rerender = () => {
-        taskContent(content, id, null, manager, project, projectID);
+        taskContent(content, id, null, manager, project, projectID, prevState);
     };
 
     const contentHead = document.createElement("div");
@@ -142,7 +145,7 @@ export default function taskContent(content, id, tasks = null, manager, project 
         const opt = document.createElement("option");
         opt.value = key;
         opt.textContent = options[key].label;
-        if (key === "filter") {
+        if (key === prevState) {
             opt.selected = true;
         }
         filterBtn.appendChild(opt);
@@ -172,6 +175,7 @@ export default function taskContent(content, id, tasks = null, manager, project 
 
     filterBtn.addEventListener("change", () => {
         const selected = filterBtn.value;
+        prevState = selected;
         let filteredTasks = fetchTasks();
 
         if (options[selected]) {
@@ -182,6 +186,7 @@ export default function taskContent(content, id, tasks = null, manager, project 
         filteredTasks.forEach(task => {
             tasksSection.appendChild(taskCard(task, manager, project, rerender));
         });
+        taskContent(content, id, null, manager, project, projectID)
     });
 
     content.append(contentHead, progress, tasksSection);
