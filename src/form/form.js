@@ -48,6 +48,9 @@ function updateProject() {
         removeBtn.onclick = () => {
             manager.removeProject(project.id);
             div.remove();
+            taskContent(document.querySelector("#content"), "inbox", window.manager.tasks, window.manager, false);
+            document.querySelectorAll(".viewButton").forEach(b => b.classList.remove("active-sidebar"));
+            document.querySelector("#inbox").classList.add("active-sidebar");
         };
     
         div.append(name, removeBtn);
